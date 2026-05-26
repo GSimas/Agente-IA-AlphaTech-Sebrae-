@@ -1,10 +1,14 @@
 pandas
 streamlit
 langchain
+langchain-core
 langchain-google-genai
+langchain-chroma
+langchain-community
+langchain-text-splitters
+langgraph
 google-generativeai
 chromadb
 python-dotenv
 openpyxl
-langchain-community
-langchain-text-splitters
+typing-extensions
