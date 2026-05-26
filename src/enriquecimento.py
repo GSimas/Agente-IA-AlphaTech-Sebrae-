@@ -42,7 +42,6 @@ def enriquecer_dados():
     print("Consolidando Receitas e Custos por Mês e Unidade...")
 
     # Agrupando receitas (Soma da receita líquida)
-    # Agora a coluna com certeza se chama 'mes' e não 'mês'
     receitas_agg = (
         df_receitas.groupby(["mes", "unidade_negocio"])["receita_liquida"]
         .sum()

@@ -6,3 +6,5 @@ google-generativeai
 chromadb
 python-dotenv
 openpyxl
+langchain-community
+langchain-text-splitters
