@@ -1,5 +1,6 @@
 pandas
 streamlit
+plotly
 langchain
 langchain-core
 langchain-google-genai
@@ -7,8 +8,12 @@ langchain-chroma
 langchain-community
 langchain-text-splitters
 langgraph
-google-generativeai
+google-genai
 chromadb
 python-dotenv
 openpyxl
 typing-extensions
+langchain-pinecone
+pinecone-client
+numpy
+supabase

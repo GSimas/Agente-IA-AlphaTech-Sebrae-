@@ -1,9 +1,10 @@
 import sqlite3
 import os
-from dotenv import load_dotenv
-from langchain_core.tools import tool
-from langchain_chroma import Chroma
+from langchain_core.tools import tool          # langchain.tools está depreciado desde v0.3
+from supabase.client import create_client
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.vectorstores import SupabaseVectorStore
+from dotenv import load_dotenv
 
 # Carrega a chave da API do arquivo .env para a memória
 load_dotenv()
@@ -45,34 +46,41 @@ def consultar_banco_sql(query: str) -> str:
 @tool
 def consultar_regras_negocio(pergunta: str) -> str:
     """
-    Busca informações qualitativas, regras de negócio, metas e diretrizes da AlphaTech.
-    Use esta ferramenta para responder perguntas sobre o que fazer, recomendações,
-    políticas de redução de custos ou classificações de risco.
+    Pesquisa no banco de dados vetorial Supabase as políticas internas,
+    regras de negócio e orientações executivas da AlphaTech.
     """
-    caminho_chroma = os.path.join("data", "chroma_db")
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    supabase = create_client(url, key)
 
-    embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")
+    # "text-embedding-004" foi aposentado na migração SDK v1→google-genai.
+    # "gemini-embedding-001" produz 3072 dims por padrão, mas o Supabase com ivfflat
+    # só suporta até 2000 dims. Usamos output_dimensionality=768 para compatibilidade.
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model="gemini-embedding-001",
+        output_dimensionality=768,  # Reduz para 768 dims (compatível com ivfflat)
+    )
 
-    try:
-        # Carrega o banco vetorial existente
-        vector_store = Chroma(
-            persist_directory=caminho_chroma, embedding_function=embeddings
-        )
+    # Conecta à mesma tabela que criamos via SQL
+    vectorstore = SupabaseVectorStore(
+        embedding=embeddings,
+        client=supabase,
+        table_name="documents",
+        query_name="match_documents",
+    )
 
-        # Realiza a busca por similaridade semântica (traz os 3 trechos mais relevantes)
-        docs = vector_store.similarity_search(pergunta, k=3)
+    # Busca os 3 trechos mais similares à pergunta do usuário
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    documentos = retriever.invoke(pergunta)
 
-        if not docs:
-            return "Nenhuma diretriz ou regra de negócio encontrada para esta pergunta."
+    if not documentos:
+        return "Nenhuma diretriz encontrada sobre este tema."
 
-        # Concatena o conteúdo dos documentos encontrados para o LLM ler
-        contexto = "Contexto recuperado das diretrizes internas da empresa:\n\n"
-        for i, doc in enumerate(docs, 1):
-            contexto += f"--- Trecho {i} ---\n{doc.page_content}\n\n"
+    resposta_formatada = "Contexto recuperado das diretrizes internas da AlphaTech:\n\n"
+    for i, doc in enumerate(documentos):
+        resposta_formatada += f"--- Trecho {i + 1} ---\n{doc.page_content}\n"
 
-        return contexto
-    except Exception as e:
-        return f"Erro ao consultar o banco de conhecimento (RAG): {e}"
+    return resposta_formatada
 
 
 # Bloco de teste local
