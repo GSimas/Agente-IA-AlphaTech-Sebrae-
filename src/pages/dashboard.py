@@ -21,6 +21,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.sidebar.image("./alphatech-logo.png", use_container_width=True)
+
+
 # ==============================================================================
 # PALETA DE CORES SEMÂNTICAS (Apenas para gráficos)
 # ==============================================================================

@@ -12,6 +12,9 @@ st.set_page_config(
     page_title="AlphaTech | Agente Financeiro IA", page_icon="📊", layout="wide"
 )
 
+st.sidebar.image("alphatech-logo.png", use_container_width=True)
+
+
 # Inicializa o Agente apenas uma vez na sessão para otimizar performance
 if "agente" not in st.session_state:
     with st.spinner("Inicializando o cérebro da IA e conectando aos dados..."):
