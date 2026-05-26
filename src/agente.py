@@ -1,16 +1,3 @@
-"""
-agente.py — AlphaTech Financial Agent
-Arquitetura: LangGraph StateGraph customizado com síntese forçada.
-
-FLUXO GARANTIDO:
-  agent_node ──→ (sem tool_calls) ──→ END          [resposta direta]
-       └──────→ (com tool_calls) ──→ tools_node
-                                         └──[aresta FIXA]──→ synthesize_node ──→ END
-
-A aresta tools → synthesize é determinística (add_edge, não conditional_edge).
-Isso torna matematicamente impossível que uma ToolMessage seja a resposta final.
-"""
-
 import os
 from typing import Annotated, Sequence
 
@@ -28,7 +15,7 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 from typing_extensions import TypedDict
 
-from src.ferramentas import consultar_banco_sql, consultar_regras_negocio
+from ferramentas import consultar_banco_sql, consultar_regras_negocio
 
 load_dotenv()
 
@@ -235,9 +222,7 @@ def _construir_contexto_sintese(messages: Sequence[BaseMessage]) -> str:
         # Normaliza conteúdo em lista (padrão Gemini multimodal)
         if isinstance(conteudo, list):
             conteudo = "\n".join(
-                bloco.get("text", "")
-                for bloco in conteudo
-                if isinstance(bloco, dict)
+                bloco.get("text", "") for bloco in conteudo if isinstance(bloco, dict)
             )
 
         if nome_classe == "HumanMessage":
