@@ -1,0 +1,12 @@
+# Ignora o ambiente virtual
+venv/
+__pycache__/
+
+# Ignora o arquivo de variáveis de ambiente com a chave real
+.env
+
+# Ignora o banco de dados vetorial do ChromaDB local
+chroma_db/
+
+# Ignora arquivos de sistema
+.DS_Store

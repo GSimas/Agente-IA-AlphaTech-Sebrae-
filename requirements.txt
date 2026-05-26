@@ -1,0 +1,8 @@
+pandas
+streamlit
+langchain
+langchain-google-genai
+google-generativeai
+chromadb
+python-dotenv
+openpyxl
