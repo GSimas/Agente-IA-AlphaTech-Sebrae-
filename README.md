@@ -25,7 +25,7 @@ graph TD
     G -->|Orquestração LangGraph| H[Agente de IA Core]
     H -->|Ferramenta SQL| C
     H -->|Ferramenta RAG Vetorial| C2
-    H -->|Raciocínio & Síntese| I(Google Gemini 1.5 Pro)
+    H -->|Raciocínio & Síntese| I(Google Gemini 2.5 Flash Lite)
     I -->|Resposta Executiva| F
 ```
 
@@ -66,7 +66,7 @@ Agente-IA-AlphaTech-Sebrae/
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/seu-usuario/Agente-IA-AlphaTech-Sebrae-.git
+git clone https://github.com/GSimas/Agente-IA-AlphaTech-Sebrae-.git
 cd Agente-IA-AlphaTech-Sebrae-
 ```
 
