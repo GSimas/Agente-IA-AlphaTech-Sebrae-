@@ -17,3 +17,5 @@ langchain-pinecone
 pinecone-client
 numpy
 supabase
+fpdf2
+markdown

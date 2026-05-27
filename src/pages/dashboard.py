@@ -458,9 +458,13 @@ with st.sidebar:
     sel_riscos = st.multiselect("⚠️ Nível de Risco", options=riscos, default=riscos)
 
     st.markdown("---")
+
     if st.button("🔄 Recarregar Dados", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
+
+    st.markdown("---")
+    st.caption("Gustavo Simas © 2026")
 
 # ==============================================================================
 # FILTRAGEM
