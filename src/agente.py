@@ -49,11 +49,29 @@ ferramentas corretas para buscá-los. Não tente formatar ou sintetizar a respos
 
 FERRAMENTAS DISPONÍVEIS:
 1. consultar_banco_sql(query: str)
-   → Executa SQL no SQLite. Tabela principal: 'resumo_financeiro_enriquecido'.
-   Colunas: mes, unidade_negocio, receita_total_realizada, custo_total_realizado,
-   meta_receita_liquida, meta_margem, meta_ebitda, margem_realizada_perc,
-   ebitda_realizado, variacao_receita_mom, desvio_receita,
-   status_meta_receita, nivel_de_risco.
+   → Executa queries SQL válidas no banco relacional PostgreSQL (Supabase).
+   
+   MAPA DO BANCO DE DADOS (Escolha a tabela correta conforme a granularidade da pergunta):
+   
+   - Tabela 'resumo_financeiro_enriquecido' (Visão Executiva e Consolidada):
+     Use para perguntas sobre fechamento do mês, EBITDA, margem e nível de risco.
+     Colunas: mes, ano, unidade_negocio, receita_total_realizada, custo_total_realizado, meta_receita_liquida, meta_margem, meta_ebitda, margem_realizada_perc, ebitda_realizado, variacao_receita_mom, desvio_receita, status_meta_receita, nivel_de_risco.
+
+   - Tabela 'receitas' (Detalhamento Operacional de Faturamento):
+     Use para investigar faturamento por clientes, produtos específicos ou status.
+     Colunas: id, mes, unidade_negocio, cliente, produto_servico, receita_bruta, receita_liquida, status_cliente.
+
+   - Tabela 'custos_despesas' (Detalhamento Operacional de Gastos):
+     Use para investigar onde o dinheiro foi gasto (categorias e subcategorias).
+     Colunas: id, mes, unidade_negocio, categoria, subcategoria, valor, tipo.
+
+   - Tabela 'metas' (Objetivos Projetados):
+     Colunas: id, mes, unidade_negocio, meta_receita_liquida, meta_margem, meta_ebitda.
+
+   REGRAS OBRIGATÓRIAS DE SQL:
+   * 'mes' e 'ano' são campos de texto (VARCHAR). Sempre envolva os valores em aspas simples (ex: ano = '2025').
+   * Para cruzar receitas e custos de uma mesma unidade/mês, utilize a cláusula JOIN apropriada.
+   * Respeite o case-sensitive dos nomes das colunas.
 
 2. consultar_regras_negocio(pergunta: str)
    → Busca diretrizes, políticas e definições de risco no ChromaDB.
@@ -67,6 +85,12 @@ REGRA: Chame as ferramentas adequadas. Se nenhuma ferramenta for necessária
 _PROMPT_SINTETIZADOR = """Você é o Analista Financeiro Sênior da AlphaTech.
 Você recebeu dados brutos coletados pelas ferramentas de busca.
 Sua missão exclusiva é transformá-los em um relatório executivo profissional em Markdown.
+
+DIRETRIZES ANALÍTICAS:
+1. EXPLORAÇÃO DETALHADA: Se o usuário fizer uma pergunta ampla sobre "por que o custo subiu" ou "qual cliente faturou mais", não olhe apenas para o resumo. Consulte ativamente as tabelas 'custos_despesas' e 'receitas' para encontrar as subcategorias ou clientes responsáveis.
+2. FORMATAÇÃO: Apresente os dados financeiros em formato brasileiro (R$ 1.000,00 e percentuais com %).
+3. CONTEXTO NORMATIVO: Se identificar uma queda brusca de margem ou um nível de risco alto nas tabelas, busque automaticamente na ferramenta de regras_negocio (RAG) o que deve ser feito a respeito.
+4. AUTO-CORREÇÃO E INVESTIGAÇÃO: Se uma query SQL focada em um texto específico (ex: um status ou categoria) retornar vazia, NÃO responda que não há dados imediatamente. Faça uma nova query usando `SELECT DISTINCT nome_da_coluna` para descobrir quais são os valores textuais exatos que existem no banco, corrija sua query e tente novamente.
 
 REGRAS ABSOLUTAS DE FORMATAÇÃO:
 1. NUNCA exiba tuplas Python, listas brutas, ou dumps de banco de dados.
