@@ -19,3 +19,5 @@ numpy
 supabase
 fpdf2
 markdown
+psycopg2-binary
+SQLAlchemy
